@@ -1,6 +1,7 @@
 <template>
-  <div id="app">
-    <router-view/>
+  <div class="main">
+    <Navigation />
+    <router-view v-bind:cities="cities" />
   </div>
 </template>
 
@@ -8,11 +9,15 @@
 import axios from 'axios';
 import { db } from './firebase/firebase';
 import { onSnapshot, collection, updateDoc, doc } from '@firebase/firestore';
+import Navigation from './components/Navigation.vue';
 export default {
   name: 'App',
+  components: {
+    Navigation
+  },
   data() {
     return {
-      APIkey: '98b8270c1a81a0f6f3f1ec4b00a7c74a',
+      APIkey: process.env.VUE_APP_API_KEY,
       cities: []
     }
   },
@@ -35,8 +40,6 @@ export default {
                 currentWeather: data
               }).then(() => {
                 this.cities.push(change.doc.data())
-              }).then(() => {
-                console.log(this.cities);
               })
             } catch (error) {
               console.log(error); 
@@ -56,5 +59,13 @@ export default {
   padding: 0;
   box-sizing: border-box;
   font-family: "Quicksand", sans-serif;
+}
+
+.main {
+  height: 100vh;
+}
+
+.container {
+  padding: 0 20px;
 }
 </style>
