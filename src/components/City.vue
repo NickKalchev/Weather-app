@@ -1,9 +1,10 @@
 <template>
-  <div class="city">
+  <div @click="goToWeather" class="city">
+      <i v-if="edit" @click="removeCity" class="far fa-trash-alt edit" ref="edit"></i>
       <span>{{this.city.city}}</span>
       <div class="weather">
-          <span>{{Math.round(this.city.currentWeather.main.temp)}} &deg;C</span>
-          <img :src="require(`../../public/conditions/${this.city.currentWeather.weather[0].icon}.svg`)" alt="">
+        <img class="icon" :src="require(`../../public/conditions/${this.city.currentWeather.weather[0].icon}.svg`)" alt="">
+        <span>{{Math.round(this.city.currentWeather.main.temp)}} &deg;C</span>
       </div>
       <div class="video">
         <video 
@@ -20,11 +21,34 @@
 </template>
 
 <script>
+import { db } from '../firebase/firebase';
+import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
 export default {
     name: "city",
-    props: ['city'],
+    props: ['city', 'edit'],
     created() {
-        console.log(this.city);
+    },
+    data() {
+        return {
+            id: null
+        }
+    },
+    methods: {
+        async removeCity() {
+            const querySnapshot = await getDocs(query(collection(db, 'cities'), where('city', '==', `${this.city.city}`)))
+            querySnapshot.forEach(doc => {
+                this.id = doc.id;
+            })
+            await deleteDoc(doc(db, 'cities', this.id));
+        },
+
+        goToWeather(e) {
+            if (e.target === this.$refs.edit) {
+                // dont do anything
+            } else {
+                this.$router.push({ name: "Weather", params: { city: this.city.city } });
+            }
+        }
     }
 }
 </script>
@@ -49,6 +73,18 @@ export default {
         font-weight: 600;
         }
 
+        .edit {
+            border-radius: 15px 0px 15px 0px;
+            border: 10px solid rgb(155, 35, 35);
+            background-color: rgb(77, 77, 77);
+            z-index: 1;
+            font-size: 20px;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            cursor: pointer;
+        }
+
         .weather {
             display: flex;
             z-index: 1;
@@ -62,8 +98,10 @@ export default {
             }
 
             img {
-                height: 20px;
+                height: 25px;
                 width: auto;
+                margin-bottom: 20px;
+                margin-right: 10px;
             }
         }
 
