@@ -1,8 +1,8 @@
 <template>
   <div class="main">
     <Modal v-if="modalOpen" v-on:close-modal="toggleModal" :APIkey="APIkey" />
-    <Navigation v-on:add-city="toggleModal" v-on:edit-cities="toggleEdit" />
-    <router-view v-bind:cities="cities" v-bind:edit="edit" :APIkey="APIkey"  />
+    <Navigation v-on:add-city="toggleModal" v-on:edit-cities="toggleEdit" :addCityActive="addCityActive" :isDay="isDay" :isNight="isNight" />
+    <router-view v-bind:cities="cities" v-bind:edit="edit" :APIkey="APIkey" v-on:is-day="dayTime" v-on:is-night="nightTime" v-on:resetDays="resetDays" :isDay="isDay" :isNight="isNight" />
   </div>
 </template>
 
@@ -20,11 +20,13 @@ export default {
   },
   data() {
     return {
+      isDay: null,
+      isNight: null,
       APIkey: process.env.VUE_APP_API_KEY,
       cities: [],
       modalOpen: null,
       edit: null,
-      addCityActive: null
+      addCityActive: null,
     }
   },
   created() {
@@ -72,6 +74,16 @@ export default {
       } else {
         this.addCityActive = false;
       }
+    },
+    dayTime() {
+      this.isDay = !this.isDay;
+    },
+    nightTime() {
+      this.isNight = !this.isNight;
+    },
+    resetDays() {
+      this.isDay = false;
+      this.isNight = false;
     }
   },
   watch: {
@@ -96,5 +108,17 @@ export default {
 
 .container {
   padding: 0 20px;
+}
+
+.day {
+  transition: 500ms ease all;
+  background-color: rgb(0, 81, 255);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+.night {
+  transition: 500ms ease all;
+  background-color: rgb(20, 42, 95);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
 </style>
